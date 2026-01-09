@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1B365D">
+    <meta name="description" content="SPPG MBG BGN Indonesia - Sistem Pengelolaan & Pelaporan Gizi">
+
+    <!-- FORCE NO CACHE -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>SPPG MBG BGN Indonesia | Badan Gizi Nasional</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="assets/app-icon.png">
+    <link rel="apple-touch-icon" href="assets/app-icon.png">
+
+    <!-- Google Fonts for Modern Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles with cache buster -->
+    <link rel="stylesheet" href="styles.css?v=4">
+
+    <!-- FORCE CLEAR OLD SERVICE WORKER -->
+    <script>
+        // FORCE UNREGISTER OLD SERVICE WORKERS
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+            if ('caches' in window) {
+                caches.keys().then(function (names) {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- =============== SPLASH SCREEN =============== -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-logo">
+            <img src="assets/bgn-logo.png" alt="BGN Logo">
+        </div>
+        <h1 class="splash-title">SPPG</h1>
+        <p class="splash-subtitle" id="splash-subtitle">MBG BGN Indonesia</p>
+
+        <!-- YUMADA License Branding -->
+        <div class="splash-license">
+            <img src="assets/yumada-logo.png" alt="YUMADA" class="license-logo-splash">
+            <div class="license-text">
+                <span class="license-title">Enterprise System for SPPG</span>
+                <span class="license-copyright">© 2026 YUMADA INDONESIA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== LOGIN SCREEN =============== -->
+    <div id="login-screen" class="login-screen hidden">
+        <!-- Ornament decorations -->
+        <img src="assets/ornament-decoration.png" class="ornament ornament-top-left" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-top-right" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-bottom-left" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-bottom-right" alt="">
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <img src="assets/bgn-logo.png" alt="BGN Logo">
+                </div>
+                <h1 id="login-app-name">SPPG-MBG-BGN-INDONESIA</h1>
+                <p>Badan Gizi Nasional</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="phone-input">📱 Nomor HP</label>
+                    <input type="tel" id="phone-input" placeholder="Contoh: 081234567890" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pin-input"><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg></span> PIN (4 digit)</label>
+                    <input type="password" id="pin-input" placeholder="Masukkan PIN" maxlength="6" pattern="[0-9]{4,6}"
+                        required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path
+                                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                            <path
+                                d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                        </svg></span> MASUK
+                </button>
+            </form>
+
+            <!-- Dynamic Installation Hint - Collapsible Accordion -->
+            <div id="new-install-hint" class="install-hint-accordion hidden">
+                <div class="install-hint-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <span class="install-hint-icon">📦</span>
+                    <span class="install-hint-title">Instalasi Baru?</span>
+                    <span class="install-hint-arrow">▼</span>
+                </div>
+                <div class="install-hint-content">
+                    <div class="install-hint-text">
+                        Login dengan Admin Default untuk setup API Cloud:
+                    </div>
+                    <div class="install-hint-credentials">
+                        📱 <strong>081234567890</strong> &nbsp;|&nbsp; 🔐 <strong>1234</strong>
+                    </div>
+                    <div class="install-hint-steps">
+                        Setelah login → Settings → Setup Koneksi Cloud
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secure Notice - Collapsible Accordion (API sudah dikonfigurasi) -->
+            <div id="api-configured-notice" class="api-hint-accordion hidden">
+                <div class="api-hint-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <span class="api-hint-icon">🔒</span>
+                    <span class="api-hint-title">Info Login</span>
+                    <span class="api-hint-arrow">▼</span>
+                </div>
+                <div class="api-hint-content">
+                    <div class="api-hint-text">
+                        Pengaturan API/Cloud tersedia di menu <strong>Settings</strong> setelah login sebagai
+                        <strong>Admin</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YUMADA License Branding -->
+            <div class="login-license">
+                <img src="assets/yumada-logo.png" alt="YUMADA" class="license-logo-login">
+                <span class="license-line">Enterprise System for SPPG</span>
+                <span class="license-line">© 2026 YUMADA INDONESIA. All Rights Reserved</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== APP SCREEN =============== -->
+    <div id="app-screen" class="app-screen hidden">
+        <!-- Ornament decorations for main app -->
+        <img src="assets/ornament-decoration.png" class="ornament ornament-top-left" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-top-right" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-bottom-left" alt="">
+        <img src="assets/ornament-decoration.png" class="ornament ornament-bottom-right" alt="">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="assets/bgn-logo.png" alt="BGN">
+                </div>
+                <div class="header-title">
+                    <h1 id="app-title">SPPG-MBG-BGN-INDONESIA</h1>
+                    <p id="current-date">Loading...</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span id="user-name">User</span>
+                <!-- Settings/Reset Button -->
+                <button class="header-btn" id="btn-settings" title="Pengaturan" onclick="App.showSettingsMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                </button>
+
+                <!-- User Dropdown Container -->
+                <div class="user-dropdown-container">
+                    <div class="user-avatar" id="btn-user-dropdown" title="Menu User"
+                        onclick="App.toggleUserDropdown()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
+                        <!-- Current User Info -->
+                        <div class="dropdown-user-info" id="dropdown-user-info">
+                            <div class="dropdown-user-name">Admin</div>
+                            <div class="dropdown-user-role">Full Access</div>
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="dropdown-menu-items">
+                            <button class="dropdown-menu-item"
+                                onclick="App.closeUserDropdown(); App.navigateTo('team');">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                                    height="18">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                                <span>Anggota Tim</span>
+                                <span class="dropdown-badge" id="team-count-badge">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Logout Button -->
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-logout-btn" onclick="App.handleLogout()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            <span>Keluar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <!-- Content will be rendered by JavaScript -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-section="dashboard">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                </span>
+                <span class="nav-label">Beranda</span>
+            </div>
+            <div class="nav-item" data-section="produksi">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6V13.87Z" />
+                        <line x1="6" y1="17" x2="18" y2="17" />
+                    </svg>
+                </span>
+                <span class="nav-label">Produksi</span>
+            </div>
+            <div class="nav-item" data-section="distribusi">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </span>
+                <span class="nav-label">Distribusi</span>
+            </div>
+            <div class="nav-item" data-section="logistik">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
+                </span>
+                <span class="nav-label">Logistik</span>
+            </div>
+        </nav>
+
+        <!-- App Footer - YUMADA License -->
+        <footer class="app-footer">
+            <img src="assets/yumada-logo.png" alt="YM" class="license-logo-footer">
+            <span class="footer-text">Enterprise System for SPPG © 2026 YUMADA INDONESIA</span>
+        </footer>
+    </div>
+
+    <!-- =============== MODALS =============== -->
+
+    <!-- Modal: Distribusi Form -->
+    <div id="modal-distribusi" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <rect x="1" y="3" width="15" height="13" />
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                            <circle cx="5.5" cy="18.5" r="2.5" />
+                            <circle cx="18.5" cy="18.5" r="2.5" />
+                        </svg></span> Input Distribusi</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-distribusi">
+                    <div class="form-group">
+                        <label>Kloter</label>
+                        <select id="distribusi-kloter" required>
+                            <option value="1">Kloter 1 - TK, PAUD, SD 1-2</option>
+                            <option value="2">Kloter 2 - SD 3-6</option>
+                            <option value="3">Kloter 3 - SMP & SMA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Sekolah</label>
+                        <input type="text" id="distribusi-sekolah" placeholder="Contoh: SDN 1 Jimbaran" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Box</label>
+                        <input type="number" id="distribusi-box" placeholder="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Driver</label>
+                        <input type="text" id="distribusi-driver" placeholder="Nama driver">
+                        <div class="form-group">
+                            <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" width="16" height="16">
+                                        <path
+                                            d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                        <circle cx="12" cy="13" r="4" />
+                                    </svg></span> Foto Distribusi (Bisa Tambah Banyak)</label>
+                            <input type="file" id="distribusi-foto" accept="image/*" capture="environment"
+                                onchange="FotoModule.addPhotoToCollection(this, 'distribusi', 'preview-distribusi-foto', 'Distribusi')">
+                            <div id="preview-distribusi-foto" class="foto-preview"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Logistik Form -->
+    <div id="modal-logistik" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg></span> Input Bahan</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-logistik">
+                    <div class="form-group">
+                        <label>Nama Bahan</label>
+                        <input type="text" id="logistik-nama" placeholder="Contoh: Beras" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Berat (kg)</label>
+                        <input type="number" step="0.1" id="logistik-berat" placeholder="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga (Rp)</label>
+                        <input type="number" id="logistik-harga" placeholder="150000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier</label>
+                        <input type="text" id="logistik-supplier" placeholder="Nama supplier/toko">
+                    </div>
+                    <div class="form-group">
+                        <label>Status QC</label>
+                        <select id="logistik-qc">
+                            <option value="ok">Lolos QC</option>
+                            <option value="review">Perlu Review</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" width="16" height="16">
+                                    <path
+                                        d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                    <circle cx="12" cy="13" r="4" />
+                                </svg></span> Foto Bahan (Bisa Tambah Banyak)</label>
+                        <input type="file" id="logistik-foto" accept="image/*" capture="environment"
+                            onchange="FotoModule.addPhotoToCollection(this, 'logistik', 'preview-logistik-foto', 'Logistik')">
+                        <div id="preview-logistik-foto" class="foto-preview"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add User -->
+    <div id="modal-add-user" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span> Tambah User</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-user">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="new-user-nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor HP</label>
+                        <input type="tel" id="new-user-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" id="new-user-jabatan" placeholder="Opsional">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="new-user-role">
+                            <option value="admin">Full Access</option>
+                            <option value="editor" selected>Can Edit</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit User -->
+    <div id="modal-edit-user" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg></span> Edit User</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-user">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="edit-user-nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor HP</label>
+                        <input type="tel" id="edit-user-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" id="edit-user-jabatan" placeholder="Opsional">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="edit-user-role">
+                            <option value="admin">Full Access</option>
+                            <option value="editor">Can Edit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="edit-user-status">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- =============== SCRIPTS =============== -->
+    <script src="modules/database.js"></script>
+    <script src="modules/foto.js"></script>
+    <script src="modules/alarm.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Additional Form Handlers -->
+    <script>
+        // Form handlers
+        document.getElementById('form-distribusi')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Process photo if exists - save to phone and get filename
+            let fotoData = null;
+            let fotoFilename = '';
+            const fotoInput = document.getElementById('distribusi-foto');
+            const namaSekolah = document.getElementById('distribusi-sekolah').value;
+
+            if (fotoInput && fotoInput.files[0]) {
+                try {
+                    const result = await FotoModule.captureAndSave(fotoInput, `Distribusi_${namaSekolah}`);
+                    if (result) {
+                        fotoData = result.dataUrl;
+                        fotoFilename = result.filename;
+                    }
+                } catch (err) {
+                    console.log('Foto error:', err);
+                }
+            }
+
+            const data = {
+                kloter: document.getElementById('distribusi-kloter').value,
+                sekolah: namaSekolah,
+                jumlahBox: document.getElementById('distribusi-box').value,
+                driver: document.getElementById('distribusi-driver').value,
+                foto: fotoData,
+                fotoFile: fotoFilename,
+                tanggal: App.getTodayDate(),
+                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                user: App.state.currentUser?.nama,
+                status: 'pending'
+            };
+            Database.add('distribusi', data);
+            document.getElementById('modal-distribusi').classList.add('hidden');
+            e.target.reset();
+            document.getElementById('preview-distribusi-foto').innerHTML = '';
+            App.showToast('success', 'Distribusi berhasil dicatat! Foto tersimpan di HP.');
+            App.renderDistribusi();
+        });
+
+        document.getElementById('form-logistik')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Process photo if exists - save to phone and get filename
+            let fotoData = null;
+            let fotoFilename = '';
+            const fotoInput = document.getElementById('logistik-foto');
+            const namaBahan = document.getElementById('logistik-nama').value;
+
+            if (fotoInput && fotoInput.files[0]) {
+                try {
+                    const result = await FotoModule.captureAndSave(fotoInput, `Logistik_${namaBahan}`);
+                    if (result) {
+                        fotoData = result.dataUrl;      // For local display
+                        fotoFilename = result.filename; // For cloud storage
+                    }
+                } catch (err) {
+                    console.log('Foto error:', err);
+                }
+            }
+
+            const data = {
+                nama: namaBahan,
+                berat: document.getElementById('logistik-berat').value,
+                harga: document.getElementById('logistik-harga').value,
+                supplier: document.getElementById('logistik-supplier')?.value || '',
+                qcStatus: document.getElementById('logistik-qc').value,
+                foto: fotoData,           // Keep full data for local display
+                fotoFile: fotoFilename,   // Just filename for reference
+                tanggal: App.getTodayDate(),
+                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                user: App.state.currentUser?.nama
+            };
+            Database.add('logistik', data);
+            document.getElementById('modal-logistik').classList.add('hidden');
+            e.target.reset();
+            document.getElementById('preview-logistik-foto').innerHTML = '';
+            App.showToast('success', 'Bahan berhasil dicatat! Foto tersimpan di HP.');
+            App.renderLogistik();
+        });
+
+        document.getElementById('form-add-user')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                nama: document.getElementById('new-user-nama').value,
+                phone: document.getElementById('new-user-phone').value,
+                jabatan: document.getElementById('new-user-jabatan').value,
+                role: document.getElementById('new-user-role').value,
+                status: 'active'
+            };
+            // Database.add() sudah memiliki auto-sync ke cloud
+            Database.add('users', data);
+            document.getElementById('modal-add-user').classList.add('hidden');
+            e.target.reset();
+            App.showToast('success', 'User berhasil ditambahkan!');
+            App.renderUsers();
+        });
+
+        // Show modal functions
+        App.showLogistikForm = () => {
+            document.getElementById('modal-logistik').classList.remove('hidden');
+        };
+
+        App.showAddUserForm = () => {
+            document.getElementById('modal-add-user').classList.remove('hidden');
+        };
+
+        // Edit user form handler
+        document.getElementById('form-edit-user')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('edit-user-id').value;
+            const data = {
+                nama: document.getElementById('edit-user-nama').value,
+                phone: document.getElementById('edit-user-phone').value,
+                jabatan: document.getElementById('edit-user-jabatan').value,
+                role: document.getElementById('edit-user-role').value,
+                status: document.getElementById('edit-user-status').value
+            };
+
+            if (App.updateUser(userId, data)) {
+                document.getElementById('modal-edit-user').classList.add('hidden');
+                e.target.reset();
+                App.renderUsers();
+            }
+        });
+
+        // Update date on header
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+
+            // =============================================
+            // DYNAMIC BRANDING - Pre-fetch from Cloud
+            // =============================================
+            const updateBrandingUI = (appName, subtitle) => {
+                // Update login page branding
+                const loginAppName = document.getElementById('login-app-name');
+                const loginSubtitle = document.getElementById('login-subtitle');
+                const appTitle = document.getElementById('app-title');
+
+                if (loginAppName) loginAppName.textContent = appName;
+                if (loginSubtitle) loginSubtitle.textContent = subtitle || 'Badan Gizi Nasional';
+                if (appTitle) appTitle.textContent = appName;
+
+                // Update splash if still visible
+                const splashSubtitle = document.getElementById('splash-subtitle');
+                if (splashSubtitle) {
+                    splashSubtitle.textContent = appName.replace('SPPG-', '').replace('SPPG ', '');
+                }
+            };
+
+            // Step 1: Use localStorage first (instant)
+            const cachedAppName = localStorage.getItem('sppg_app_name') || 'SPPG-MBG-BGN-INDONESIA';
+            const cachedSubtitle = localStorage.getItem('sppg_subtitle') || 'Badan Gizi Nasional';
+            updateBrandingUI(cachedAppName, cachedSubtitle);
+
+            // Step 2: Pre-fetch from Cloud (async, if API configured)
+            const apiUrl = localStorage.getItem('sppg_api_url');
+            if (apiUrl && apiUrl.length > 10) {
+                fetch(`${apiUrl}?action=getBranding`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success && result.data) {
+                            const { appName, subtitle } = result.data;
+                            // Update UI with cloud data
+                            updateBrandingUI(appName, subtitle);
+                            // Cache for next visit
+                            localStorage.setItem('sppg_app_name', appName);
+                            localStorage.setItem('sppg_subtitle', subtitle);
+                            console.log('🌐 Branding pre-fetched from cloud:', appName);
+                        }
+                    })
+                    .catch(e => console.log('Branding prefetch skipped:', e.message));
+            }
+            // ============================================
+
+            // =============================================
+            // DYNAMIC LOGIN HINT - Berdasarkan status API
+            // =============================================
+            // apiUrl already declared above, reuse it
+            const newInstallHint = document.getElementById('new-install-hint');
+            const apiConfiguredNotice = document.getElementById('api-configured-notice');
+
+            if (!apiUrl || apiUrl.trim() === '') {
+                // API belum dikonfigurasi - tampilkan hint instalasi baru
+                if (newInstallHint) newInstallHint.classList.remove('hidden');
+                if (apiConfiguredNotice) apiConfiguredNotice.classList.add('hidden');
+            } else {
+                // API sudah dikonfigurasi - tampilkan notice biasa
+                if (newInstallHint) newInstallHint.classList.add('hidden');
+                if (apiConfiguredNotice) apiConfiguredNotice.classList.remove('hidden');
+            }
+            // ============================================
+
+
+            // Foto preview handlers
+            const setupFotoPreview = (inputId, previewId) => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('change', async (e) => {
+                        const preview = document.getElementById(previewId);
+                        if (preview && e.target.files[0]) {
+                            preview.innerHTML = '<div class="foto-loading">⏳ Memproses...</div>';
+                            try {
+                                const watermarked = await FotoModule.captureWithWatermark(e.target);
+                                preview.innerHTML = `<img src="${watermarked}" class="foto-thumbnail" alt="Preview">`;
+                            } catch (err) {
+                                preview.innerHTML = '<div class="foto-error">❌ Gagal memproses foto</div>';
+                            }
+                        }
+                    });
+                }
+            };
+
+            setupFotoPreview('logistik-foto', 'preview-logistik-foto');
+            setupFotoPreview('distribusi-foto', 'preview-distribusi-foto');
+        });
+    </script>
+</body>
+
+</html>
